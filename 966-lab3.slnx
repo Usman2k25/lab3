@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Business/Business.csproj" />
+  <Project Path="DataAccessLayer/DataAccessLayer.csproj" />
+  <Project Path="Shared/Shared.csproj" />
+  <Project Path="ProductManagementApp/ProductManagementApp.csproj" />
+</Solution>
+

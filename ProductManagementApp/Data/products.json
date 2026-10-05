@@ -1,0 +1,66 @@
+[
+  {
+    "id": "8f7c9e2a-4b15-4d6f-9a31-2c8e5b7f1046",
+    "name": "Laptop",
+    "price": 120000,
+    "category": "Electronics",
+    "description": "Business laptop",
+    "isActive": true
+  },
+  {
+    "id": "3a6d1f84-92c7-4e5b-b018-7d2a9c6f5431",
+    "name": "Keyboard",
+    "price": 5000,
+    "category": "Accessories",
+    "description": "Mechanical keyboard",
+    "isActive": true
+  },
+  {
+    "id": "c5e8b271-6f43-49a2-8d17-1b9c4e735620",
+    "name": "Mouse",
+    "price": 2500,
+    "category": "Accessories",
+    "description": "Wireless mouse",
+    "isActive": true
+  },
+  {
+    "id": "0c3a2efb-3c3a-4c4b-bbc1-8bcbf4d5a101",
+    "name": "Monitor",
+    "price": 35000,
+    "category": "Electronics",
+    "description": "24-inch IPS monitor",
+    "isActive": true
+  },
+  {
+    "id": "0f2cb4d9-4e18-4423-83b0-1b9f1de2c202",
+    "name": "Printer",
+    "price": 45000,
+    "category": "Office",
+    "description": "All-in-one printer",
+    "isActive": false
+  },
+  {
+    "id": "1e7d0a54-8f07-4b2d-b8e5-2aaf2ce3d303",
+    "name": "Desk Chair",
+    "price": 28000,
+    "category": "Furniture",
+    "description": "Ergonomic office chair",
+    "isActive": true
+  },
+  {
+    "id": "2f1b3c68-1d48-4fd0-8ed3-3c1d4f5e4e04",
+    "name": "USB Hub",
+    "price": 3200,
+    "category": "Accessories",
+    "description": "4-port USB hub",
+    "isActive": true
+  },
+  {
+    "id": "3b2d4e79-2e59-4a60-9fe4-4d2e5f6a5f05",
+    "name": "Headset",
+    "price": 8500,
+    "category": "Accessories",
+    "description": "Noise-cancelling headset",
+    "isActive": true
+  }
+]
