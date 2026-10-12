@@ -1,4 +1,6 @@
+
 using Business.Interfaces;
+using DataAccessLayer;
 using DataAccessLayer.Interfaces;
 using Shared.Models;
 
@@ -13,7 +15,10 @@ public class ProductService : IProductService
         _repository = repository;
     }
 
-    public Task<List<ProductModel>> GetAllAsync() => _repository.GetAllAsync();
+    public Task<List<ProductModel>> GetAllAsync()
+    {
+        return Task.FromResult(CRUD.GetAllData());
+    }
 
     public Task<ProductModel?> GetByIdAsync(Guid id) => _repository.GetByIdAsync(id);
 
