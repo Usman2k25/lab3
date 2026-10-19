@@ -1,27 +1,170 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using Shared.Models
 @using DataAccessLayer
 
-<PageTitle>Home</PageTitle>
-
 <h1>Products</h1>
+
+<button class="btn btn-success mb-2" @onclick="() => showAddForm = !showAddForm">
+    @(showAddForm ? "Close" : "Add Product")
+</button>
+
+@if (showAddForm)
+{
+    <div class="card p-3 mb-3">
+        <h4>Add Product</h4>
+        <div class="mb-2">
+            <label>Name</label>
+            <input class="form-control" @bind="newProduct.Name" />
+        </div>
+        <div class="mb-2">
+            <label>Price</label>
+            <input class="form-control" type="number" step="0.01" @bind="newProduct.Price" />
+        </div>
+        <div class="mb-2">
+            <label>Category</label>
+            <input class="form-control" @bind="newProduct.Category" />
+        </div>
+        <div class="mb-2">
+            <label>Description</label>
+            <input class="form-control" @bind="newProduct.Description" />
+        </div>
+        <div>
+            <button class="btn btn-primary" @onclick="CreateNewProduct">Add Product</button>
+            <button class="btn btn-secondary ms-2" @onclick="() => { showAddForm = false; newProduct = new ProductModel(); }">Cancel</button>
+        </div>
+    </div>
+}
+
+<p>@message</p>
 
 @foreach (var p in products)
 {
-    <p>Id: @p.Id</p>
-    <p>Name: @p.Name</p>
-    <p>Price: @p.Price</p>
-    <p>Category: @p.Category</p>
-    <p>Description: @p.Description</p>
-    <p>Active: @p.IsActive</p>
-    <hr />
+    <div class="card p-3 mb-3" @key="p.Id">
+        @if (editMode.ContainsKey(p.Id) && editMode[p.Id])
+        {
+            <h5>Edit Product</h5>
+            <div class="mb-2">
+                <label>Name</label>
+                <input class="form-control" @bind="p.Name" />
+            </div>
+            <div class="mb-2">
+                <label>Price</label>
+                <input class="form-control" type="number" step="0.01" @bind="p.Price" />
+            </div>
+            <div class="mb-2">
+                <label>Category</label>
+                <input class="form-control" @bind="p.Category" />
+            </div>
+            <div class="mb-2">
+                <label>Description</label>
+                <input class="form-control" @bind="p.Description" />
+            </div>
+            <div>
+                <button class="btn btn-primary" @onclick="() => Update(p)">UPDATE</button>
+                <button class="btn btn-secondary ms-2" @onclick="() => CancelEdit(p.Id)">Cancel</button>
+            </div>
+        }
+        else
+        {
+            <p><strong>Id:</strong> @p.Id</p>
+            <p><strong>Name:</strong> @p.Name</p>
+            <p><strong>Price:</strong> @p.Price</p>
+            <p><strong>Category:</strong> @p.Category</p>
+            <div>
+                <button class="btn btn-outline-primary" @onclick="() => StartEdit(p.Id)">Edit</button>
+                <button class="btn btn-danger ms-2" @onclick="() => Delete(p.Id)">Delete</button>
+            </div>
+        }
+    </div>
 }
 
 @code {
     List<ProductModel> products = new List<ProductModel>();
+    string message = "";
+    ProductModel newProduct = new ProductModel();
+    bool showAddForm = false;
+    Dictionary<Guid, bool> editMode = new Dictionary<Guid, bool>();
 
     protected override void OnInitialized()
     {
+        try
+        {
+            message = "Loading products...";
+            products = CRUD.GetAllData();
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+
+    void Add()
+    {
+        // Deprecated; use CreateNewProduct form instead
+        message = "Use the Add Product form to create products.";
+    }
+
+    void CreateNewProduct()
+    {
+        try
+        {
+            newProduct.Id = Guid.NewGuid();
+            CRUD.CreateData(newProduct);
+            products = CRUD.GetAllData();
+            message = "Product added successfully!";
+            newProduct = new ProductModel();
+            showAddForm = false;
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+
+    void StartEdit(Guid id)
+    {
+        // enable edit mode for this product
+        editMode[id] = true;
+    }
+
+    void CancelEdit(Guid id)
+    {
+        // cancel edit by reloading products to discard changes
+        editMode[id] = false;
         products = CRUD.GetAllData();
+    }
+
+    void Update(ProductModel p)
+    {
+        try
+        {
+            // Save the edited values from bound inputs
+            CRUD.UpdateData(p);
+            products = CRUD.GetAllData();
+            // turn off edit mode for this product
+            if (editMode.ContainsKey(p.Id)) editMode[p.Id] = false;
+
+            message = "Product updated successfully!";
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+
+    void Delete(Guid id)
+    {
+        try
+        {
+            CRUD.DeleteData(id);
+            products = CRUD.GetAllData();
+
+            message = "Product deleted successfully!";
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
     }
 }
