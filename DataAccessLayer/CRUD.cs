@@ -12,26 +12,38 @@ namespace DataAccessLayer
         {
             List<ProductModel> products = new List<ProductModel>();
 
-            string Query = "SELECT * FROM \"Products\"";
+            string query = @"SELECT ""Id"", ""Name"", ""Price"", ""Category"",
+                                    ""Description"", ""IsActive""
+                             FROM ""Products""";
+
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
 
-                using (var cmd = new NpgsqlCommand(Query, connection))
+                using (var cmd = new NpgsqlCommand(query, connection))
                 using (var reader = cmd.ExecuteReader())
                 {
-                    Console.WriteLine("Database query executed successfully");
+                    int idIndex = reader.GetOrdinal("Id");
+                    int nameIndex = reader.GetOrdinal("Name");
+                    int priceIndex = reader.GetOrdinal("Price");
+                    int categoryIndex = reader.GetOrdinal("Category");
+                    int descriptionIndex = reader.GetOrdinal("Description");
+                    int activeIndex = reader.GetOrdinal("IsActive");
 
                     while (reader.Read())
                     {
                         ProductModel product = new ProductModel();
-                        product.Id = reader.GetGuid(0);
-                        product.Name = reader.GetString(1);
-                        // Price is stored as numeric/decimal in DB; read as decimal to match model
-                        product.Price = reader.IsDBNull(2) ? 0m : reader.GetDecimal(2);
-                        product.Category = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
-                        product.Description = reader.IsDBNull(4) ? null : reader.GetString(4);
-                        product.IsActive = !reader.IsDBNull(5) && reader.GetBoolean(5);
+
+                        product.Id = reader.GetGuid(idIndex);
+                        product.Name = reader.GetString(nameIndex);
+                        product.Price = reader.IsDBNull(priceIndex)
+                            ? 0m : reader.GetDecimal(priceIndex);
+                        product.Category = reader.IsDBNull(categoryIndex)
+                            ? string.Empty : reader.GetString(categoryIndex);
+                        product.Description = reader.IsDBNull(descriptionIndex)
+                            ? null : reader.GetString(descriptionIndex);
+                        product.IsActive = !reader.IsDBNull(activeIndex)
+                            && reader.GetBoolean(activeIndex);
 
                         products.Add(product);
                     }
@@ -46,17 +58,19 @@ namespace DataAccessLayer
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-            string q = @"INSERT INTO ""Products""
-(""Id"", ""Name"", ""Price"", ""Category"", ""Description"", ""IsActive"")
-VALUES (@id, @name, @price, @category, @description, @active)";
 
-                using (var cmd = new NpgsqlCommand(q, con))
+                string query = @"INSERT INTO ""Products""
+                    (""Id"", ""Name"", ""Price"", ""Category"", ""Description"", ""IsActive"")
+                    VALUES (@id, @name, @price, @category, @description, @active)";
+
+                using (var cmd = new NpgsqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@id", p.Id);
                     cmd.Parameters.AddWithValue("@name", p.Name);
                     cmd.Parameters.AddWithValue("@price", p.Price);
                     cmd.Parameters.AddWithValue("@category", p.Category);
-                    cmd.Parameters.AddWithValue("@description", (object?)p.Description ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@description",
+                        (object?)p.Description ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@active", p.IsActive);
 
                     cmd.ExecuteNonQuery();
@@ -69,16 +83,23 @@ VALUES (@id, @name, @price, @category, @description, @active)";
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                // Update all editable fields including Description and Category
-                string q = "UPDATE \"Products\" SET \"Name\"=@name, \"Price\"=@price, \"Category\"=@category, \"Description\"=@description, \"IsActive\"=@active WHERE \"Id\"=@id";
 
-                using (var cmd = new NpgsqlCommand(q, con))
+                string query = @"UPDATE ""Products""
+                    SET ""Name"" = @name,
+                        ""Price"" = @price,
+                        ""Category"" = @category,
+                        ""Description"" = @description,
+                        ""IsActive"" = @active
+                    WHERE ""Id"" = @id";
+
+                using (var cmd = new NpgsqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@id", p.Id);
                     cmd.Parameters.AddWithValue("@name", p.Name);
                     cmd.Parameters.AddWithValue("@price", p.Price);
-                    cmd.Parameters.AddWithValue("@category", (object?)p.Category ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@description", (object?)p.Description ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@category", p.Category);
+                    cmd.Parameters.AddWithValue("@description",
+                        (object?)p.Description ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@active", p.IsActive);
 
                     cmd.ExecuteNonQuery();
@@ -92,9 +113,9 @@ VALUES (@id, @name, @price, @category, @description, @active)";
             {
                 con.Open();
 
-                string q = "DELETE FROM \"Products\" WHERE \"Id\"=@id";
+                string query = @"DELETE FROM ""Products"" WHERE ""Id"" = @id";
 
-                using (var cmd = new NpgsqlCommand(q, con))
+                using (var cmd = new NpgsqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
                     cmd.ExecuteNonQuery();
